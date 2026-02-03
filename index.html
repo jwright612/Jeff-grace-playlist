@@ -8,12 +8,70 @@
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       padding: 24px;
+      max-width: 720px;
+      margin: 0 auto;
     }
+
+    .player {
+      margin: 12px 0 18px;
+    }
+
+    .list {
+      border-top: 1px solid rgba(0,0,0,0.12);
+      margin-top: 16px;
+    }
+
     .track {
-      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      cursor: pointer;
+      user-select: none;
     }
-    .now {
+
+    .track:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    .track.now {
       font-weight: 700;
+      background: rgba(0,0,0,0.06);
+    }
+
+    .num {
+      width: 2.5em;
+      opacity: 0.7;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .title {
+      flex: 1;
+    }
+
+    .hint {
+      opacity: 0.65;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: white;
+      cursor: pointer;
+    }
+
+    button:hover { background: rgba(0,0,0,0.04); }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 8px 0 0;
     }
   </style>
 </head>
@@ -21,9 +79,15 @@
 
 <h2>Playlist</h2>
 
-<audio id="player" controls preload="metadata"></audio>
+<div class="player">
+  <audio id="player" controls preload="metadata"></audio>
+  <div class="controls">
+    <button id="restart">Restart playlist</button>
+  </div>
+  <div class="hint">Tip: click any track below to jump to it.</div>
+</div>
 
-<div id="list"></div>
+<div id="list" class="list"></div>
 
 <script>
 const tracks = [
@@ -38,37 +102,57 @@ const tracks = [
   { title: "10 Main Title", file: "audio/10 Main Title.mp3" },
   { title: "11 Bonfire", file: "audio/11 Bonfire.mp3" },
   { title: "12 Preparing the Body", file: "audio/12 Preparing the Body.mp3" },
-  { title: "12 With Love I Do This", file: "audio/12 With Love I do This.mp3" },
+  { title: "12 With Love I do This", file: "audio/12 With Love I do This.mp3" },
   { title: "13 The Beast", file: "audio/13 The Beast.mp3" }
 ];
 
 let index = 0;
 const player = document.getElementById("player");
 const list = document.getElementById("list");
+const restartBtn = document.getElementById("restart");
 
-function render() {
-  list.innerHTML = tracks.map((t, i) =>
-    `<div class="track ${i === index ? "now" : ""}">
-      ${i === index ? "▶ " : ""}${t.title}
-    </div>`
-  ).join("");
+function renderList() {
+  list.innerHTML = "";
+  tracks.forEach((t, i) => {
+    const row = document.createElement("div");
+    row.className = "track" + (i === index ? " now" : "");
+    row.innerHTML = `
+      <div class="num">${String(i + 1).padStart(2, "0")}</div>
+      <div class="title">${t.title}</div>
+    `;
+    row.addEventListener("click", () => {
+      load(i, true); // jump + play
+    });
+    list.appendChild(row);
+  });
 }
 
-function load(i) {
+function load(i, shouldPlay = false) {
   index = i;
   player.src = tracks[index].file;
-  render();
+  renderList();
+
+  if (shouldPlay) {
+    // Works after the user has interacted with the page (which clicking a track counts as)
+    player.play();
+  }
 }
 
+// Autoplay next track when one ends
 player.addEventListener("ended", () => {
   if (index + 1 < tracks.length) {
-    load(index + 1);
-    player.play();
+    load(index + 1, true);
   }
 });
 
-load(0);
+// Restart button
+restartBtn.addEventListener("click", () => {
+  load(0, true);
+});
+
+load(0, false);
 </script>
 
 </body>
 </html>
+

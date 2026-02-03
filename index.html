@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playlist</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      padding: 24px;
+    }
+    .track {
+      margin: 6px 0;
+    }
+    .now {
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Playlist</h2>
+
+<audio id="player" controls preload="metadata"></audio>
+
+<div id="list"></div>
+
+<script>
+const tracks = [
+  { title: "01 Goodbye Belle", file: "audio/01 Goodbye Belle.mp3" },
+  { title: "02 Rya Vanishes", file: "audio/02 Rya Vanishes.mp3" },
+  { title: "03 Sweet Tooth", file: "audio/03 Sweet Tooth.mp3" },
+  { title: "04 Footprints", file: "audio/04 Footprints.mp3" },
+  { title: "05 He's in the House", file: "audio/05 He's in the House.mp3" },
+  { title: "06 Motor Cycle Chase", file: "audio/06 Motor Cycle Chase.mp3" },
+  { title: "08 Surrounded", file: "audio/08 Surrounded.mp3" },
+  { title: "09 Time Turns Back", file: "audio/09 Time Turns Back.mp3" },
+  { title: "10 Main Title", file: "audio/10 Main Title.mp3" },
+  { title: "11 Bonfire", file: "audio/11 Bonfire.mp3" },
+  { title: "12 Preparing the Body", file: "audio/12 Preparing the Body.mp3" },
+  { title: "12 With Love I Do This", file: "audio/12 With Love I do This.mp3" },
+  { title: "13 The Beast", file: "audio/13 The Beast.mp3" }
+];
+
+let index = 0;
+const player = document.getElementById("player");
+const list = document.getElementById("list");
+
+function render() {
+  list.innerHTML = tracks.map((t, i) =>
+    `<div class="track ${i === index ? "now" : ""}">
+      ${i === index ? "▶ " : ""}${t.title}
+    </div>`
+  ).join("");
+}
+
+function load(i) {
+  index = i;
+  player.src = tracks[index].file;
+  render();
+}
+
+player.addEventListener("ended", () => {
+  if (index + 1 < tracks.length) {
+    load(index + 1);
+    player.play();
+  }
+});
+
+load(0);
+</script>
+
+</body>
+</html>
